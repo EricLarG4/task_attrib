@@ -8,6 +8,29 @@
 librarian::shelf(tidyverse, openxlsx)
 
 #################################################################################
+# Helper Function: Adjust Scores
+#################################################################################
+
+#' Adjust worker scores based on current SGSE usage
+#'
+#' @param scores_df Dataframe containing task scores
+#' @param worker_sgse Dataframe containing worker SGSE usage
+#' @param coef Coefficient to adjust scores based on SGSE usage
+#'
+#' @return Dataframe with adjusted scores
+adjust_scores <- function(scores_df, worker_sgse, coef) {
+  scores_df %>%
+    pivot_longer(
+      cols = starts_with("worker"),
+      names_to = "worker",
+      values_to = "score"
+    ) %>%
+    left_join(worker_sgse, by = "worker") %>%
+    mutate(adjusted_score = score * (1 - coef * percentage_used / 100)) %>%
+    select(tasks, worker, adjusted_score)
+}
+
+#################################################################################
 # Task Assignment Function
 #################################################################################
 
@@ -24,7 +47,9 @@ librarian::shelf(tidyverse, openxlsx)
 #' @param max_sgse_sheet Name of the sheet containing maximum SGSE limits for each worker
 #' @param score_adjust_coef Coefficient to adjust scores based on SGSE usage (default: 1)
 #'
-#' @return A dataframe showing the assigned worker for each task along with its desirability score
+#' @return A list containing:
+#'   - df_assign: Dataframe showing the assigned worker for each task along with its desirability score
+#'   - worker_sgse: Dataframe showing the SGSE distribution for each worker
 #' @export
 assign_tasks <- function(
   input_filepath = 'manual_input.xlsx',
@@ -61,20 +86,7 @@ assign_tasks <- function(
       values_to = "score"
     ) %>%
     group_by(tasks) %>%
-    summarize(mean_score = mean(score), .groups = "drop")
-
-  # Function to adjust worker scores based on current SGSE usage
-  adjust_scores <- function(scores_df, worker_sgse, coef) {
-    scores_df %>%
-      pivot_longer(
-        cols = starts_with("worker"),
-        names_to = "worker",
-        values_to = "score"
-      ) %>%
-      left_join(worker_sgse, by = "worker") %>%
-      mutate(adjusted_score = score * (1 - coef * percentage_used / 100)) %>%
-      select(tasks, worker, adjusted_score)
-  }
+    summarize(task_desirability = mean(score), .groups = "drop")
 
   # Initialize task assignment dataframe sorted by desirability
   df_assign <- data.frame(
@@ -83,14 +95,13 @@ assign_tasks <- function(
     worker = NA
   ) %>%
     left_join(desirability, by = "tasks") %>%
-    arrange(desc(mean_score))
+    arrange(desc(task_desirability))
 
   # Process all tasks in order of desirability
   for (idx in 1:nrow(df_assign)) {
     task <- df_assign$tasks[idx]
 
     # Recalculate adjusted scores based on current SGSE distribution
-    # This ensures we're using the most up-to-date scores after each assignment
     adjusted_scores <- adjust_scores(
       df_scores$scores,
       worker_sgse,
@@ -116,13 +127,9 @@ assign_tasks <- function(
         # Log if we couldn't use the highest-scoring worker
         if (candidate_worker != best_workers[1]) {
           cat(
-            "Note: Best worker",
-            best_workers[1],
-            "could not be assigned to",
-            task,
-            "- assigning to",
-            candidate_worker,
-            "instead.\n"
+            "Note: Best worker", best_workers[1],
+            "could not be assigned to", task,
+            "- assigning to", candidate_worker, "instead.\n"
           )
         }
 
@@ -147,11 +154,7 @@ assign_tasks <- function(
   # Check for unassigned tasks
   unassigned <- sum(is.na(df_assign$worker))
   if (unassigned > 0) {
-    cat(
-      "\nWarning:",
-      unassigned,
-      "tasks could not be assigned due to SGSE constraints.\n"
-    )
+    cat("\nWarning:", unassigned, "tasks could not be assigned due to SGSE constraints.\n")
   }
 
   # Output final assignment results
@@ -165,7 +168,7 @@ assign_tasks <- function(
   for (wrkr in worker_list) {
     worker_tasks <- df_assign %>%
       filter(worker == wrkr) %>%
-      arrange(desc(mean_score))
+      arrange(desc(task_desirability))
 
     total_worker_sgse <- sum(worker_tasks$sgse, na.rm = TRUE)
     worker_max_sgse <- worker_sgse %>%
@@ -173,29 +176,15 @@ assign_tasks <- function(
       pull(max_sgse)
 
     cat(
-      "\n",
-      wrkr,
-      " (",
-      total_worker_sgse,
-      "/",
-      worker_max_sgse,
-      " SGSE, ",
-      round(100 * total_worker_sgse / worker_max_sgse, 1),
-      "%):\n",
-      sep = ""
+      "\n", wrkr, " (", total_worker_sgse, "/", worker_max_sgse, " SGSE, ",
+      round(100 * total_worker_sgse / worker_max_sgse, 1), "%):\n", sep = ""
     )
 
     if (nrow(worker_tasks) > 0) {
       for (i in 1:nrow(worker_tasks)) {
         cat(
-          "  - ",
-          worker_tasks$tasks[i],
-          " (SGSE: ",
-          worker_tasks$sgse[i],
-          ", Score: ",
-          round(worker_tasks$mean_score[i], 1),
-          ")\n",
-          sep = ""
+          "  - ", worker_tasks$tasks[i], " (SGSE: ", worker_tasks$sgse[i],
+          ", Score: ", round(worker_tasks$task_desirability[i], 1), ")\n", sep = ""
         )
       }
     } else {
@@ -215,11 +204,12 @@ assign_tasks <- function(
   ) %>%
     pivot_wider(names_from = "worker", values_from = "adjusted_score")
 
-  cat("\nFinal adjusted scores (using coefficient: ", score_adjust_coef, "):\n", sep = "")	
+  cat("\nFinal adjusted scores (using coefficient: ", score_adjust_coef, "):\n", sep = "")
   print(final_scores)
 
-  return(df_assign)
+  return(list(df_assign = df_assign, worker_sgse = worker_sgse))
 }
 
-# Execute the task assignment function with default parameters
-assign_tasks('manual_input.xlsx', 5, "scores", "max_sgse", 0)
+
+# Example usage
+# assign_tasks('manual_input.xlsx', 5, "scores", "max_sgse", 0.5)
