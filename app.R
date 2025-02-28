@@ -1,7 +1,15 @@
 library(librarian)
 
 # Load required packages
-librarian::shelf(tidyverse, bslib, shiny, openxlsx, DT)
+librarian::shelf(tidyverse, bslib, shiny, openxlsx, DT, ragg, readr)
+
+library(ragg)
+library(readr)
+library(shiny)
+library(tidyverse)
+library(bslib)
+library(DT)
+library(openxlsx)
 
 # Source the main.R script to use the assign_tasks function
 source("main.R")
