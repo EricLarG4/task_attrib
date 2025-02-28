@@ -1,3 +1,5 @@
+library(librarian)
+
 # Load required packages
 librarian::shelf(tidyverse, bslib, shiny, openxlsx, DT)
 
