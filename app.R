@@ -34,6 +34,10 @@ ui <- fluidPage(
         selected = "superhero"  # Default theme (Less dark)
       ),
       fileInput("file", "Upload Excel File", accept = c(".xlsx")),
+      # Add link to manual_input.xlsx on the github repo for easy download
+      helpText(
+        a("Download an example input file", href = "https://github.com/EricLarG4/task_attrib/blob/ec7e8e06cbd7b6e789ece4a10e84080fecbfddb0/manual_input.xlsx", target = "_blank")
+      ),
       sliderInput(
         "coef", 
         label = "Score Adjustment Coefficient", 
