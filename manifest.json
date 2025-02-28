@@ -1444,36 +1444,6 @@
     "app.R": {
       "checksum": "c9a6367caaae7323866145a93926da33"
     },
-    "archives/dev.R": {
-      "checksum": "08a906ffea1fa5f1e1c9e21b044aef4a"
-    },
-    "archives/dev2.R": {
-      "checksum": "721caa4fd9e6e82d35576ac1fe13b524"
-    },
-    "archives/dev3.R": {
-      "checksum": "886ed07802f7b680d4b48a061ce18b93"
-    },
-    "archives/dev4.R": {
-      "checksum": "fe932ba776ab726efd3ec818d87438b3"
-    },
-    "archives/dev5.R": {
-      "checksum": "8410764ebabb7ab78be069e8fb1a396f"
-    },
-    "archives/dev6.R": {
-      "checksum": "1f0368875b2188d7a454ddeffa3763a1"
-    },
-    "archives/input.xlsx": {
-      "checksum": "546d21df380a7dbdc0b5b5c39df4067c"
-    },
-    "archives/scores.xlsx": {
-      "checksum": "4e092145ee200e219e15a66282a86e66"
-    },
-    "archives/scores_with_sgse.xlsx": {
-      "checksum": "97542778816c00eade232b0e42695b42"
-    },
-    "archives/task_assignment_results_sgse.xlsx": {
-      "checksum": "de57deaa7a94ca5b055d4fcb39c94c49"
-    },
     "main.R": {
       "checksum": "f1c8a550058fd7cfc09043c0dcbf6744"
     },
