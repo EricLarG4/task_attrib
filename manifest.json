@@ -143,6 +143,34 @@
         "Built": "R 4.4.2; ; 2025-01-16 03:12:10 UTC; windows"
       }
     },
+    "ragg" : {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "ragg",
+        "Version": "1.2.0",
+        "Title": "Ragg: High-Performance Vector Graphics in R",
+        "Authors@R": "c(\n    person(\"Winston\", \"Chang\", , \"winston@posit.co\", c(\"aut\", \"cre\")),\n    person(family = \"Posit Software, PBC\", role = c(\"cph\", \"fnd\")))",
+        "License": "MIT + file LICENSE",
+        "Encoding": "UTF-8",
+        "ByteCompile": "true",
+        "URL": "https://ragg.r-lib.org/, https://github.com/r-lib/ragg",
+        "Imports": "Rcpp (>= 1.0.8)",
+        "Suggests": "testthat",
+        "RoxygenNote": "7.2.3",
+        "Config/Needs/routine": "lobstr",
+        "Config/testthat/edition": "3",
+        "Config/testthat/parallel": "true",
+        "Config/testthat/start-first": "zzzz-*.R",
+        "NeedsCompilation": "yes",
+        "Packaged": "2024-05-15 15:54:22 UTC; winston",
+        "Author": "Winston Chang [aut, cre],\n  Posit Software, PBC [cph, fnd]",
+        "Maintainer": "Winston Chang <winston@posit.co>",
+        "Repository": "CRAN",
+        "Date/Publication": "2024-05-15 16:10:02 UTC",
+        "Built": "R 4.4.2; ; 2025-01-16 03:12:10 UTC; windows"
+      }
+    }
     "cachem": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
